@@ -4,6 +4,7 @@ import io.github.bernardotomazz.jobtracker.job.dto.CreateJobRequest;
 import io.github.bernardotomazz.jobtracker.job.dto.JobResponse;
 import io.github.bernardotomazz.jobtracker.job.dto.UpdateJobStatusRequest;
 import io.github.bernardotomazz.jobtracker.job.enums.ApplicationStatus;
+import io.github.bernardotomazz.jobtracker.job.enums.WorkMode;
 import io.github.bernardotomazz.jobtracker.job.service.JobApplicationService;
 import io.github.bernardotomazz.jobtracker.user.entity.User;
 import jakarta.validation.Valid;
@@ -32,8 +33,12 @@ public class JobApplicationController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<JobResponse> getAllJobs(@AuthenticationPrincipal User user) {
-        return jobApplicationService.getAllJobApplications(user);
+    public List<JobResponse> getAllJobs(@RequestParam(required = false) ApplicationStatus status,
+                                        @RequestParam(required = false) WorkMode workMode,
+                                        @RequestParam(required = false) String company,
+                                        @RequestParam(required = false) String search,
+                                        @AuthenticationPrincipal User user) {
+        return jobApplicationService.getAllJobApplications(status, workMode, company, search, user);
     }
 
     @GetMapping("/{id}")

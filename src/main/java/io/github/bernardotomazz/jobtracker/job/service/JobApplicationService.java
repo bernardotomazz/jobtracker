@@ -1,13 +1,18 @@
 package io.github.bernardotomazz.jobtracker.job.service;
 
+import io.github.bernardotomazz.jobtracker.common.exception.ResourceNotFoundException;
 import io.github.bernardotomazz.jobtracker.job.dto.CreateJobRequest;
 import io.github.bernardotomazz.jobtracker.job.dto.JobResponse;
 import io.github.bernardotomazz.jobtracker.job.dto.UpdateJobStatusRequest;
 import io.github.bernardotomazz.jobtracker.job.entity.JobApplication;
 import io.github.bernardotomazz.jobtracker.job.enums.ApplicationStatus;
+import io.github.bernardotomazz.jobtracker.job.enums.WorkMode;
 import io.github.bernardotomazz.jobtracker.job.mapper.JobApplicationMapper;
 import io.github.bernardotomazz.jobtracker.job.repository.JobApplicationRepository;
+import io.github.bernardotomazz.jobtracker.job.specification.JobApplicationSpecification;
 import io.github.bernardotomazz.jobtracker.user.entity.User;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -29,8 +34,31 @@ public class JobApplicationService {
         return JobApplicationMapper.toResponse(job);
     }
 
-    public List<JobResponse> getAllJobApplications(User user) {
-        return jobApplicationRepository.findByUserIdOrderByUpdatedAtDesc(user.getId())
+    public List<JobResponse> getAllJobApplications(ApplicationStatus status,
+                                                   WorkMode workMode,
+                                                   String company,
+                                                   String search,
+                                                   User user) {
+        Specification<JobApplication> specification =
+                JobApplicationSpecification.belongsToUser(user.getId());
+        if (status != null) {
+            specification = specification.and(
+                    JobApplicationSpecification.hasStatus(status)
+            );
+        }
+        if (workMode != null) {
+            specification = specification.and(
+                    JobApplicationSpecification.hasWorkMode(workMode));
+        }
+        if (company != null && !company.isBlank()) {
+            specification = specification.and(
+                    JobApplicationSpecification.companyContains(company));
+        }
+        if (search != null && !search.isBlank()) {
+            specification = specification.and(
+                    JobApplicationSpecification.searchByTitleOrCompany(search));
+        }
+        return jobApplicationRepository.findAll(specification, Sort.by(Sort.Direction.DESC, "updatedAt"))
                 .stream()
                 .map(JobApplicationMapper::toResponse)
                 .toList();
@@ -61,6 +89,6 @@ public class JobApplicationService {
 
     //Métodos privados
     private JobApplication findJobApplication(UUID id, User user) {
-        return jobApplicationRepository.findByIdAndUserId(id, user.getId()).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "Job not found"));
+        return jobApplicationRepository.findByIdAndUserId(id, user.getId()).orElseThrow(()-> new ResourceNotFoundException("Job not found"));
     }
 }

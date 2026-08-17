@@ -2,6 +2,7 @@ package io.github.bernardotomazz.jobtracker.security;
 
 import io.github.bernardotomazz.jobtracker.user.entity.User;
 import io.github.bernardotomazz.jobtracker.user.repository.UserRepository;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,17 +40,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String token = authorizationHeader.substring(7);
-        String email = jwtService.extractEmail(token);
+        try {
+            String email = jwtService.extractEmail(token);
 
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            Optional<User> user = userRepository.findByEmail(email);
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                Optional<User> user = userRepository.findByEmail(email);
 
-            if (user.isPresent() && jwtService.isTokenValid(token, user.get())) {
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(user.get(), null, null);
+                if (user.isPresent() && jwtService.isTokenValid(token, user.get())) {
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(user.get(), null, null);
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
             }
+        } catch (JwtException | IllegalArgumentException exception) {
+            SecurityContextHolder.clearContext();
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
         }
 
         filterChain.doFilter(request, response);

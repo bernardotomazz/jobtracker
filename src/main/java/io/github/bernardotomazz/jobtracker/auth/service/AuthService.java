@@ -4,6 +4,8 @@ package io.github.bernardotomazz.jobtracker.auth.service;
 import io.github.bernardotomazz.jobtracker.auth.dto.AuthResponse;
 import io.github.bernardotomazz.jobtracker.auth.dto.LoginRequest;
 import io.github.bernardotomazz.jobtracker.auth.dto.RegisterRequest;
+import io.github.bernardotomazz.jobtracker.common.exception.EmailAlreadyRegisteredException;
+import io.github.bernardotomazz.jobtracker.common.exception.InvalidCredentialsException;
 import io.github.bernardotomazz.jobtracker.security.JwtService;
 import io.github.bernardotomazz.jobtracker.user.dto.UserResponse;
 import io.github.bernardotomazz.jobtracker.user.entity.User;
@@ -27,7 +29,7 @@ public class AuthService {
     //Metodo para registrar usuário
     public UserResponse register (RegisterRequest registerRequest) {
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
-            throw new IllegalArgumentException("Email already registered");
+            throw new EmailAlreadyRegisteredException("Email already registered");
         }
         String passwordHash = passwordEncoder.encode(registerRequest.getPassword());
         User user = new User();
@@ -43,11 +45,11 @@ public class AuthService {
     public AuthResponse login (LoginRequest loginRequest) {
         Optional<User> user = userRepository.findByEmail(loginRequest.getEmail());
         if (user.isEmpty()) {
-            throw new IllegalArgumentException("Invalid credentials");
+            throw new InvalidCredentialsException("Invalid credentials");
         }
         User userEntity = user.get();
         if (!passwordEncoder.matches(loginRequest.getPassword(), userEntity.getPasswordHash())) {
-            throw new IllegalArgumentException("Invalid credentials");
+            throw new InvalidCredentialsException("Invalid credentials");
         }
         UserResponse userResponse = new UserResponse(userEntity.getId(), userEntity.getName(), userEntity.getEmail());
         String jwt = jwtService.generateToken(userEntity);
