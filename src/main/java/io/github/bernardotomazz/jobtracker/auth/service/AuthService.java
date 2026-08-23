@@ -14,6 +14,7 @@ import io.github.bernardotomazz.jobtracker.user.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Locale;
 import java.util.Optional;
 
 @Service
@@ -27,23 +28,27 @@ public class AuthService {
         this.jwtService = jwtService;
     }
     //Metodo para registrar usuário
-    public UserResponse register (RegisterRequest registerRequest) {
-        if (userRepository.existsByEmail(registerRequest.getEmail())) {
+    public AuthResponse register (RegisterRequest registerRequest) {
+        String normalizedEmail = normalizeEmail(registerRequest.getEmail());
+        if (userRepository.existsByEmail(normalizedEmail)) {
             throw new EmailAlreadyRegisteredException("Email already registered");
         }
         String passwordHash = passwordEncoder.encode(registerRequest.getPassword());
         User user = new User();
         user.setName(registerRequest.getName());
-        user.setEmail(registerRequest.getEmail());
+        user.setEmail(normalizedEmail);
         user.setPasswordHash(passwordHash);
 
         User savedUser = userRepository.save(user);
-        return new UserResponse(savedUser.getId(), savedUser.getName(), savedUser.getEmail());
+        UserResponse userResponse = new UserResponse(savedUser.getId(), savedUser.getName(), savedUser.getEmail());
+        String jwt = jwtService.generateToken(savedUser);
+        return new AuthResponse(jwt, userResponse);
     }
 
     //Metodo para logar usuario
     public AuthResponse login (LoginRequest loginRequest) {
-        Optional<User> user = userRepository.findByEmail(loginRequest.getEmail());
+        String normalizedEmail = normalizeEmail(loginRequest.getEmail());
+        Optional<User> user = userRepository.findByEmail(normalizedEmail);
         if (user.isEmpty()) {
             throw new InvalidCredentialsException("Invalid credentials");
         }
@@ -54,5 +59,9 @@ public class AuthService {
         UserResponse userResponse = new UserResponse(userEntity.getId(), userEntity.getName(), userEntity.getEmail());
         String jwt = jwtService.generateToken(userEntity);
         return new AuthResponse(jwt, userResponse);
+    }
+
+    private String normalizeEmail(String email) {
+        return email.trim().toLowerCase(Locale.ROOT);
     }
 }

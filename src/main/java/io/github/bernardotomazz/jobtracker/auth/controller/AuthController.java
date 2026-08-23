@@ -4,7 +4,6 @@ import io.github.bernardotomazz.jobtracker.auth.dto.AuthResponse;
 import io.github.bernardotomazz.jobtracker.auth.dto.LoginRequest;
 import io.github.bernardotomazz.jobtracker.auth.dto.RegisterRequest;
 import io.github.bernardotomazz.jobtracker.auth.service.AuthService;
-import io.github.bernardotomazz.jobtracker.user.dto.UserResponse;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,7 +21,7 @@ public class AuthController {
 
 
     @PostMapping("/register")
-    public UserResponse register(@Valid @RequestBody RegisterRequest registerRequest){
+    public AuthResponse register(@Valid @RequestBody RegisterRequest registerRequest){
         return authService.register(registerRequest);
     }
 

@@ -6,11 +6,11 @@ import io.github.bernardotomazz.jobtracker.auth.dto.RegisterRequest;
 import io.github.bernardotomazz.jobtracker.common.exception.EmailAlreadyRegisteredException;
 import io.github.bernardotomazz.jobtracker.common.exception.InvalidCredentialsException;
 import io.github.bernardotomazz.jobtracker.security.JwtService;
-import io.github.bernardotomazz.jobtracker.user.dto.UserResponse;
 import io.github.bernardotomazz.jobtracker.user.entity.User;
 import io.github.bernardotomazz.jobtracker.user.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.mockito.InjectMocks;
@@ -38,22 +38,29 @@ public class AuthServiceTest {
 
     @Test
     void shouldRegisterWhenEmailIsAvailable() {
+
         RegisterRequest registerRequest = new RegisterRequest();
         registerRequest.setName("John");
-        registerRequest.setEmail("email");
+        registerRequest.setEmail("John@Email.COM");
         registerRequest.setPassword("password");
 
-        when(userRepository.existsByEmail(registerRequest.getEmail())).thenReturn(false);
+        when(userRepository.existsByEmail(("john@email.com"))).thenReturn(false);
         when(passwordEncoder.encode(registerRequest.getPassword())).thenReturn("hashed-password");
         User savedUser = new User();
         savedUser.setId(UUID.randomUUID());
         savedUser.setName(registerRequest.getName());
-        savedUser.setEmail(registerRequest.getEmail());
+        savedUser.setEmail("john@email.com");
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
-        UserResponse response = authService.register(registerRequest);
-        assertEquals(savedUser.getId(),response.getId());
-        assertEquals(savedUser.getName(),response.getName());
-        assertEquals(savedUser.getEmail(),response.getEmail());
+        when(jwtService.generateToken(savedUser)).thenReturn("register-token");
+        AuthResponse response = authService.register(registerRequest);
+        verify(userRepository).save(userCaptor.capture());
+        assertEquals("john@email.com", userCaptor.getValue().getEmail());
+        assertEquals(savedUser.getId(),response.getUser().getId());
+        assertEquals(savedUser.getName(),response.getUser().getName());
+        assertEquals(savedUser.getEmail(),response.getUser().getEmail());
+        assertEquals("register-token", response.getToken());
+        verify(jwtService).generateToken(savedUser);
         verify(passwordEncoder).encode(registerRequest.getPassword());
         verify(userRepository).save(any(User.class));
     }
@@ -62,28 +69,29 @@ public class AuthServiceTest {
     void shouldThrowEmailAlreadyRegisteredExceptionWhenEmailAlreadyExists() {
         RegisterRequest registerRequest = new RegisterRequest();
         registerRequest.setName("John");
-        registerRequest.setEmail("email");
+        registerRequest.setEmail("John@Email.com");
         registerRequest.setPassword("password");
-        when(userRepository.existsByEmail(registerRequest.getEmail())).thenReturn(true);
+        when(userRepository.existsByEmail("john@email.com")).thenReturn(true);
         assertThrows(EmailAlreadyRegisteredException.class, () -> {
             authService.register(registerRequest);
         });
+        verifyNoInteractions(jwtService);
         verifyNoInteractions(passwordEncoder);
         verify(userRepository, never()).save(any(User.class));
-        verify(userRepository).existsByEmail(registerRequest.getEmail());
+        verify(userRepository).existsByEmail("john@email.com");
     }
 
     @Test
     void shouldLoginWhenCredentialsAreValid() {
         LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setEmail("email");
+        loginRequest.setEmail("JOHN@EMAIL.COM");
         loginRequest.setPassword("password");
         User user = new User();
         user.setId(UUID.randomUUID());
         user.setName("John");
-        user.setEmail("email");
+        user.setEmail("john@email.com");
         user.setPasswordHash("hashed-password");
-        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+        when(userRepository.findByEmail("john@email.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("password", "hashed-password")).thenReturn(true);
         when(jwtService.generateToken(user)).thenReturn("token-false");
         AuthResponse authResponse = authService.login(loginRequest);
