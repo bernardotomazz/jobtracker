@@ -1,5 +1,5 @@
 import { ExternalLink, LoaderCircle, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { StatusBadge, statusLabels } from "@/components/StatusBadge";
 import { api } from "@/lib/api";
 import type { ApplicationStatus, JobApplication } from "@/types";
@@ -26,38 +26,84 @@ interface JobDetailsDrawerProps {
 }
 
 export function JobDetailsDrawer({ jobId, onClose, onEdit, onDelete, onUpdated }: JobDetailsDrawerProps) {
+  const drawerRef = useRef<HTMLElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const onCloseRef = useRef(onClose);
+  const titleId = useId();
+  onCloseRef.current = onClose;
   const [job, setJob] = useState<JobApplication | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (!jobId) { setJob(null); return; }
+    const controller = new AbortController();
     setLoading(true);
     setError("");
-    api.getJob(jobId)
+    api.getJob(jobId, controller.signal)
       .then(setJob)
-      .catch((requestError: Error) => setError(requestError.message))
+      .catch((requestError: Error) => {
+        if (requestError.name !== "AbortError") setError(requestError.message);
+      })
       .finally(() => setLoading(false));
+    return () => controller.abort();
+  }, [jobId]);
+
+  useEffect(() => {
+    if (!jobId) return;
+    previousFocusRef.current = document.activeElement as HTMLElement | null;
+    closeRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onCloseRef.current();
+        return;
+      }
+      if (event.key !== "Tab" || !drawerRef.current) return;
+      const focusable = Array.from(drawerRef.current.querySelectorAll<HTMLElement>("button:not([disabled]), a[href], select, input, textarea"));
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      previousFocusRef.current?.focus();
+    };
   }, [jobId]);
 
   const updateStatus = async (status: ApplicationStatus) => {
     if (!job) return;
-    const updated = await api.updateStatus(job.id, status);
-    setJob(updated);
-    onUpdated(updated);
+    try {
+      const updated = await api.updateStatus(job.id, status);
+      setJob(updated);
+      onUpdated(updated);
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Não foi possível alterar o status.");
+    }
   };
 
   if (!jobId) return null;
   return (
     <div className="drawer-layer" role="presentation" onMouseDown={onClose}>
-      <aside className="job-drawer" role="dialog" aria-modal="true" aria-label="Detalhes da vaga" onMouseDown={(event) => event.stopPropagation()}>
-        <button className="icon-button drawer-close" onClick={onClose} aria-label="Fechar detalhes"><X size={20} /></button>
-        {loading && <div className="drawer-state"><LoaderCircle className="spin" /> Carregando vaga...</div>}
-        {error && <div className="alert error">{error}</div>}
+    <aside ref={drawerRef} className="job-drawer" role="dialog" aria-modal="true" aria-labelledby={titleId} onMouseDown={(event) => event.stopPropagation()}>
+        <button ref={closeRef} type="button" className="icon-button drawer-close" onClick={onClose} aria-label="Fechar detalhes"><X size={20} /></button>
+        {loading && <div className="drawer-state" role="status"><LoaderCircle className="spin" /> Carregando vaga...</div>}
+        {error && <div className="alert error" role="alert">{error}</div>}
         {job && (
           <>
             <div className="drawer-heading">
-              <h2>{job.title}</h2>
+              <h2 id={titleId}>{job.title}</h2>
               <p>{job.company}</p>
               <StatusBadge status={job.status} />
             </div>

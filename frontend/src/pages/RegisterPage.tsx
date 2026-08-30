@@ -19,7 +19,7 @@ export function RegisterPage() {
     event.preventDefault();
     setError("");
     if (!name.trim()) return setError("Informe seu nome.");
-    if (password.length < 6) return setError("A senha deve ter pelo menos 6 caracteres.");
+    if (password.length < 8) return setError("A senha deve ter pelo menos 8 caracteres.");
     if (password !== confirmation) return setError("As senhas não coincidem.");
     setBusy(true);
     try {
@@ -40,7 +40,7 @@ export function RegisterPage() {
         <form className="auth-form" onSubmit={submit}>
           <h1>Crie sua conta</h1>
           <p>Comece a organizar suas oportunidades em poucos passos.</p>
-          {error && <div className="alert error">{error}</div>}
+          {error && <div className="alert error" role="alert">{error}</div>}
           <div className="auth-fields compact-fields">
             <label className="field"><span>Nome</span><input required value={name} onChange={(event) => setName(event.target.value)} placeholder="Como podemos chamar você?" autoComplete="name" /></label>
             <label className="field"><span>E-mail</span><input type="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="seu@email.com" autoComplete="email" /></label>

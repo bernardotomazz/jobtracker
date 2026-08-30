@@ -24,9 +24,13 @@ export function JobFormPage() {
 
   useEffect(() => {
     if (!id) return;
-    api.getJob(id).then((job) => setForm({
+    const controller = new AbortController();
+    api.getJob(id, controller.signal).then((job) => setForm({
       title: job.title, company: job.company, jobUrl: job.jobUrl || "", location: job.location || "", workMode: job.workMode || "", salaryRange: job.salaryRange || "", appliedAt: job.appliedAt?.slice(0, 10) || "", description: job.description || "", mainRequirements: job.mainRequirements || "", desiredRequirements: job.desiredRequirements || "", processDetails: job.processDetails || "", notes: job.notes || "",
-    })).catch((requestError: Error) => setError(requestError.message)).finally(() => setLoading(false));
+    })).catch((requestError: Error) => {
+      if (requestError.name !== "AbortError") setError(requestError.message);
+    }).finally(() => setLoading(false));
+    return () => controller.abort();
   }, [id]);
 
   const update = (field: keyof FormState, value: string) => setForm((current) => ({ ...current, [field]: value }));
@@ -48,15 +52,15 @@ export function JobFormPage() {
     } finally { setBusy(false); }
   };
 
-  if (loading) return <div className="app-page"><AppHeader /><div className="page-state"><LoaderCircle className="spin" /> Carregando vaga...</div></div>;
+  if (loading) return <div className="app-page"><AppHeader /><div className="page-state" role="status"><LoaderCircle className="spin" /> Carregando vaga...</div></div>;
 
   return (
     <div className="app-page">
       <AppHeader />
       <main className="job-form-main">
-        <button className="back-link" onClick={() => navigate("/jobs")}><ArrowLeft size={16} /> Voltar para minhas vagas</button>
+        <button type="button" className="back-link" onClick={() => navigate("/jobs")}><ArrowLeft size={16} /> Voltar para minhas vagas</button>
         <div className="form-heading"><h1>{editing ? "Editar vaga" : "Nova vaga"}</h1><p>{editing ? "Atualize as informações desta oportunidade." : "Registre uma oportunidade para acompanhar o processo."}</p></div>
-        {error && <div className="alert error">{error}</div>}
+        {error && <div className="alert error" role="alert">{error}</div>}
         <form onSubmit={submit}>
           <FormSection title="Informações básicas" description="Identificação, origem e formato da oportunidade.">
             <div className="form-grid two"><Field label="Título da vaga" required><input required value={form.title} onChange={(event) => update("title", event.target.value)} placeholder="Ex.: Desenvolvedor Java Júnior" /></Field><Field label="Empresa" required><input required value={form.company} onChange={(event) => update("company", event.target.value)} placeholder="Ex.: Empresa Exemplo" /></Field></div>

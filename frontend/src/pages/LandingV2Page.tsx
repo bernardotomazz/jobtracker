@@ -72,8 +72,8 @@ function StatusBadge({ tone, children }: { tone: Tone; children: React.ReactNode
 
 function ProductBoard() {
   return (
-    <div className="v3-product" aria-label="Prévia do Kanban do Job Tracker">
-      <div className="v3-product-topbar"><strong>Job Tracker</strong><span>B</span></div>
+    <div className="v3-product" aria-label="Prévia do Kanban do Waldo">
+      <div className="v3-product-topbar"><strong>Waldo</strong><span>B</span></div>
       <div className="v3-product-content">
         <div className="v3-product-heading">
           <div><strong>Minhas vagas</strong><span>5 oportunidades acompanhadas</span></div>
@@ -121,7 +121,8 @@ function ProductBoard() {
 function JourneySection() {
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start 78%", "end 54%"] });
-  const progress = useSpring(scrollYProgress, { stiffness: 110, damping: 28, restDelta: 0.001 });
+  const smoothProgress = useSpring(scrollYProgress, { stiffness: 110, damping: 28, restDelta: 0.001 });
+  const progress = smoothProgress;
 
   return (
     <section className="v3-journey" ref={sectionRef}>
@@ -145,7 +146,8 @@ function JourneySection() {
 
 export function LandingV2Page() {
   const { scrollYProgress } = useScroll();
-  const pageProgress = useSpring(scrollYProgress, { stiffness: 120, damping: 28, restDelta: 0.001 });
+  const smoothProgress = useSpring(scrollYProgress, { stiffness: 120, damping: 28, restDelta: 0.001 });
+  const pageProgress = smoothProgress;
 
   return (
     <div className="landing-v2">
@@ -162,7 +164,7 @@ export function LandingV2Page() {
         <section className="v3-hero">
           <motion.div className="v3-hero-copy" initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.1 } } }}>
             <motion.span variants={reveal} transition={{ duration: 0.6 }}>Sua busca, finalmente em um só lugar</motion.span>
-            <motion.h1 variants={reveal} transition={{ duration: 0.65 }}>Job Tracker</motion.h1>
+            <motion.h1 variants={reveal} transition={{ duration: 0.65 }}>Waldo</motion.h1>
             <motion.p variants={reveal} transition={{ duration: 0.65 }}>Organize oportunidades, acompanhe processos seletivos e saiba exatamente qual é o próximo passo.</motion.p>
             <motion.div className="v3-hero-actions" variants={reveal} transition={{ duration: 0.65 }}>
               <Link className="v3-button primary" to="/register">Organizar minhas vagas <ArrowRight size={18} /></Link>

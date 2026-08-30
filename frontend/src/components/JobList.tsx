@@ -66,7 +66,7 @@ export function JobList({ jobs, onOpen, onStatus }: JobListProps) {
   };
 
   return (
-    <div className="job-list-view">
+    <div className="job-list-view" role="table" aria-label="Lista de vagas">
       <div className="mobile-list-sort">
         <label htmlFor="mobile-list-order">Ordenar por</label>
         <select
@@ -87,54 +87,59 @@ export function JobList({ jobs, onOpen, onStatus }: JobListProps) {
           <option value="location:asc">Localização</option>
         </select>
       </div>
-      <div className="job-list-header">
+      <div className="job-list-header" role="row">
         {(Object.keys(sortLabels) as SortKey[]).filter((column) => column !== "updatedAt").map((column) => (
-          <button
-            key={column}
-            className={sortKey === column ? "active" : ""}
-            onClick={() => changeSort(column)}
-            aria-label={`Ordenar por ${sortLabels[column]}${sortKey === column ? `, ordem ${sortDirection === "asc" ? "crescente" : "decrescente"}` : ""}`}
-          >
-            {sortLabels[column]} <SortIcon column={column} />
-          </button>
+          <span className="job-list-sort-cell" role="columnheader" aria-sort={sortKey === column ? (sortDirection === "asc" ? "ascending" : "descending") : "none"} key={column}>
+            <button
+              type="button"
+              className={sortKey === column ? "active" : ""}
+              onClick={() => changeSort(column)}
+              aria-label={`Ordenar por ${sortLabels[column]}${sortKey === column ? `, ordem ${sortDirection === "asc" ? "crescente" : "decrescente"}` : ""}`}
+            >
+              {sortLabels[column]} <SortIcon column={column} />
+            </button>
+          </span>
         ))}
-        <span className="job-list-salary-heading">Faixa salarial</span>
-        <button
-          className={sortKey === "updatedAt" ? "active" : ""}
-          onClick={() => changeSort("updatedAt")}
-          aria-label={`Ordenar por Atualização${sortKey === "updatedAt" ? `, ordem ${sortDirection === "asc" ? "crescente" : "decrescente"}` : ""}`}
-        >
-          Atualização <SortIcon column="updatedAt" />
-        </button>
-        <span />
+        <span className="job-list-salary-heading" role="columnheader">Faixa salarial</span>
+        <span className="job-list-sort-cell" role="columnheader" aria-sort={sortKey === "updatedAt" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}>
+          <button
+            type="button"
+            className={sortKey === "updatedAt" ? "active" : ""}
+            onClick={() => changeSort("updatedAt")}
+            aria-label={`Ordenar por Atualização${sortKey === "updatedAt" ? `, ordem ${sortDirection === "asc" ? "crescente" : "decrescente"}` : ""}`}
+          >
+            Atualização <SortIcon column="updatedAt" />
+          </button>
+        </span>
+        <span role="columnheader" aria-label="Ações" />
       </div>
       <div className="job-list-body">
         {sortedJobs.map((job) => (
-          <article className="job-list-row" key={job.id}>
-            <button className="job-list-identity" onClick={() => onOpen(job)}>
+          <article className="job-list-row" role="row" key={job.id}>
+            <button type="button" className="job-list-identity" onClick={() => onOpen(job)} aria-label={`Ver detalhes de ${job.title}`}>
               <strong>{job.title}</strong>
               <span>{job.company}</span>
             </button>
-            <label className="job-list-status">
+            <label className="job-list-status" role="cell">
               <span className="sr-only">Status de {job.title}</span>
               <select value={job.status} onChange={(event) => onStatus(job, event.target.value as ApplicationStatus)}>
                 {statuses.map((status) => <option key={status} value={status}>{statusLabels[status]}</option>)}
               </select>
             </label>
-            <span className="job-list-mode">
+            <span className="job-list-mode" role="cell">
               <BriefcaseBusiness size={14} />
               {job.workMode ? workModeLabels[job.workMode] : "Não informada"}
             </span>
-            <span className="job-list-location">
+            <span className="job-list-location" role="cell">
               <MapPin size={14} />
               {job.location || "Não informada"}
             </span>
-            <span className="job-list-salary">
+            <span className="job-list-salary" role="cell">
               <Banknote size={15} />
               {job.salaryRange || "Não informada"}
             </span>
-            <span className="job-list-updated">{relativeDate(job.updatedAt)}</span>
-            <button className="icon-button job-list-open" onClick={() => onOpen(job)} aria-label={`Ver detalhes de ${job.title}`} title="Ver detalhes">
+            <span className="job-list-updated" role="cell">{relativeDate(job.updatedAt)}</span>
+            <button type="button" className="icon-button job-list-open" onClick={() => onOpen(job)} aria-label={`Ver detalhes de ${job.title}`} title="Ver detalhes">
               <ArrowRight size={18} />
             </button>
           </article>

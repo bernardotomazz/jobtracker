@@ -1,20 +1,23 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { PublicRoute } from "@/components/PublicRoute";
 import { AuthProvider } from "@/context/AuthContext";
-import { DashboardPage } from "@/pages/DashboardPage";
-import { JobFormPage } from "@/pages/JobFormPage";
-import { LandingPage } from "@/pages/LandingPage";
-import { LandingV2Page } from "@/pages/LandingV2Page";
-import { LoginPage } from "@/pages/LoginPage";
-import { NotFoundPage } from "@/pages/NotFoundPage";
-import { RegisterPage } from "@/pages/RegisterPage";
+
+const DashboardPage = lazy(() => import("@/pages/DashboardPage").then((module) => ({ default: module.DashboardPage })));
+const JobFormPage = lazy(() => import("@/pages/JobFormPage").then((module) => ({ default: module.JobFormPage })));
+const LandingPage = lazy(() => import("@/pages/LandingPage").then((module) => ({ default: module.LandingPage })));
+const LandingV2Page = lazy(() => import("@/pages/LandingV2Page").then((module) => ({ default: module.LandingV2Page })));
+const LoginPage = lazy(() => import("@/pages/LoginPage").then((module) => ({ default: module.LoginPage })));
+const NotFoundPage = lazy(() => import("@/pages/NotFoundPage").then((module) => ({ default: module.NotFoundPage })));
+const RegisterPage = lazy(() => import("@/pages/RegisterPage").then((module) => ({ default: module.RegisterPage })));
 
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
+        <Suspense fallback={null}>
+          <Routes>
           <Route path="/" element={<LandingV2Page />} />
           <Route path="/landing-original" element={<LandingPage />} />
           <Route path="/landing-v2" element={<Navigate to="/" replace />} />
@@ -29,7 +32,8 @@ export default function App() {
           </Route>
           <Route path="/dashboard" element={<Navigate to="/jobs" replace />} />
           <Route path="*" element={<NotFoundPage />} />
-        </Routes>
+          </Routes>
+        </Suspense>
       </AuthProvider>
     </BrowserRouter>
   );

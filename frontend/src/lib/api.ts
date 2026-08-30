@@ -30,8 +30,9 @@ async function request<T>(path: string, options: RequestInit = {}, authenticated
   let response: Response;
   try {
     response = await fetch(`${API_URL}${path}`, { ...options, headers });
-  } catch {
-    throw new ApiError("Não foi possível conectar ao servidor. Verifique se o backend está em execução.", 0);
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") throw error;
+    throw new ApiError("Não foi possível conectar agora. Verifique sua conexão e tente novamente.", 0);
   }
 
   if (!response.ok) {
@@ -42,13 +43,17 @@ async function request<T>(path: string, options: RequestInit = {}, authenticated
       // Some security responses intentionally have an empty body.
     }
 
-    if (authenticated && (response.status === 401 || response.status === 403)) {
+    if (authenticated && response.status === 401) {
       window.dispatchEvent(new CustomEvent("job-tracker:session-expired"));
     }
 
     const fallbackMessage = response.status >= 500
-      ? "Não foi possível conectar ao servidor. Verifique se o backend está em execução."
-      : "Não foi possível concluir a solicitação.";
+      ? "Não foi possível concluir a solicitação agora. Tente novamente em instantes."
+      : response.status === 403
+        ? "Você não tem permissão para realizar esta ação."
+        : response.status === 404
+          ? "Não encontramos o recurso solicitado."
+          : "Não foi possível concluir a solicitação.";
     throw new ApiError(body.message || fallbackMessage, response.status);
   }
 
@@ -80,7 +85,7 @@ export const api = {
     }),
 
   listJobs: (filters: JobFilters = {}) => request<JobApplication[]>(`/jobs${queryString(filters)}`, {}, true),
-  getJob: (id: string) => request<JobApplication>(`/jobs/${id}`, {}, true),
+  getJob: (id: string, signal?: AbortSignal) => request<JobApplication>(`/jobs/${id}`, { signal }, true),
   createJob: (payload: JobPayload) =>
     request<JobApplication>("/jobs", { method: "POST", body: JSON.stringify(payload) }, true),
   updateJob: (id: string, payload: JobPayload) =>

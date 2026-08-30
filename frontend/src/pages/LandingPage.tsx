@@ -117,7 +117,7 @@ export function LandingPage() {
       <main>
         <section className="hero-section">
           <div className="hero-copy">
-            <h1>Job Tracker</h1>
+            <h1>Waldo</h1>
             <p>
               Organize suas vagas e acompanhe cada processo seletivo em um só
               lugar.

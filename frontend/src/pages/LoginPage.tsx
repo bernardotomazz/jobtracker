@@ -41,9 +41,9 @@ export function LoginPage() {
         <form className="auth-form" onSubmit={submit}>
           <h1>Entre na sua conta</h1>
           <p>Acesse suas vagas e continue acompanhando seus processos.</p>
-          {params.get("expired") && <div className="alert warning">Sua sessão expirou. Entre novamente para continuar.</div>}
-          {params.get("registered") && <div className="alert success">Conta criada com sucesso. Agora, entre para acessar suas vagas.</div>}
-          {error && <div className="alert error">{error}</div>}
+          {params.get("expired") && <div className="alert warning" role="alert">Sua sessão expirou. Entre novamente para continuar.</div>}
+          {params.get("registered") && <div className="alert success" role="status">Conta criada com sucesso. Agora, entre para acessar suas vagas.</div>}
+          {error && <div className="alert error" role="alert">{error}</div>}
           <div className="auth-fields">
             <label className="field"><span>E-mail</span><input type="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="seu@email.com" autoComplete="email" /></label>
             <PasswordField label="Senha" required value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Digite sua senha" autoComplete="current-password" />

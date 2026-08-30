@@ -1,6 +1,6 @@
-# Job Tracker - Implementação do Figma
+# Waldo - Implementação do Figma
 
-Frontend React independente criado a partir do arquivo `Job Tracker - MVP Design`.
+Frontend React independente criado a partir do design do Waldo.
 
 ## Executar
 
