@@ -1,8 +1,8 @@
 # Waldo
 
-Organize suas oportunidades, acompanhe processos seletivos e saiba exatamente qual e o proximo passo.
+Organize suas oportunidades, acompanhe processos seletivos e saiba exatamente qual e o próximo passo.
 
-Waldo e uma aplicacao full-stack para centralizar a busca por emprego em uma experiencia simples, visual e pratica.
+Waldo é uma aplicação full-stack para centralizar a busca por emprego em uma experiência simples, visual e prática.
 
 **Demo:** [waldo-2mf.pages.dev](https://waldo-2mf.pages.dev/)
 
