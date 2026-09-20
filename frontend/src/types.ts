@@ -41,6 +41,7 @@ export interface JobPayload {
   title: string;
   description: string | null;
   company: string;
+  status?: ApplicationStatus;
   jobUrl: string | null;
   location: string | null;
   salaryRange: string | null;

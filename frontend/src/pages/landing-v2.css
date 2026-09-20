@@ -59,12 +59,12 @@
   font-weight: 650;
 }
 
-.v3-header nav > a:first-child,
+.v3-header .v3-login-link,
 .v3-text-link {
   transition: color 180ms ease;
 }
 
-.v3-header nav > a:first-child:hover,
+.v3-header .v3-login-link:hover,
 .v3-text-link:hover {
   color: var(--v3-green);
 }
@@ -313,7 +313,7 @@
   .v3-hero, .v3-value-strip, .v3-principles, .v3-journey, .v3-decision, .v3-cta, .v3-footer { padding-right: 20px; padding-left: 20px; }
   .v3-header { height: 64px; }
   .v3-header nav { gap: 12px; }
-  .v3-header nav > a:first-child { display: none; }
+  .v3-header .v3-login-link { display: none; }
   .v3-header .v3-button { min-height: 44px; padding: 8px 12px; font-size: 13px; }
 
   .v3-hero { min-height: 0; padding-top: 38px; }

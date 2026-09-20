@@ -14,6 +14,7 @@ import { motion, useScroll, useSpring } from "motion/react";
 import { useRef } from "react";
 import { Link } from "react-router-dom";
 import { Brand } from "@/components/Brand";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import "@/pages/landing-v2.css";
 
 type Tone = "saved" | "applied" | "progress" | "finished";
@@ -155,7 +156,8 @@ export function LandingV2Page() {
       <header className="v3-header">
         <Brand />
         <nav aria-label="Navegação principal">
-          <Link to="/login">Entrar</Link>
+          <ThemeToggle />
+          <Link className="v3-login-link" to="/login">Entrar</Link>
           <Link className="v3-button primary" to="/register">Criar conta <ArrowRight size={17} /></Link>
         </nav>
       </header>

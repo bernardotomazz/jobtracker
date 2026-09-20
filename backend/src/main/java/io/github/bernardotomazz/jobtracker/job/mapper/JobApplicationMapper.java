@@ -27,7 +27,7 @@ public final class JobApplicationMapper {
         jobApplication.setNotes(request.getNotes());
         jobApplication.setAppliedAt(request.getAppliedAt());
 
-        jobApplication.setStatus(ApplicationStatus.SAVED);
+        jobApplication.setStatus(request.getStatus() != null ? request.getStatus() : ApplicationStatus.SAVED);
         jobApplication.setUser(user);
 
         return jobApplication;

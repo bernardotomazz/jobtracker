@@ -3,10 +3,10 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AppHeader } from "@/components/AppHeader";
 import { api } from "@/lib/api";
-import type { JobPayload, WorkMode } from "@/types";
+import type { ApplicationStatus, JobPayload, WorkMode } from "@/types";
 
 const emptyForm = {
-  title: "", company: "", jobUrl: "", location: "", workMode: "", salaryRange: "", appliedAt: "", description: "", mainRequirements: "", desiredRequirements: "", processDetails: "", notes: "",
+  title: "", company: "", status: "SAVED", jobUrl: "", location: "", workMode: "", salaryRange: "", appliedAt: "", description: "", mainRequirements: "", desiredRequirements: "", processDetails: "", notes: "",
 };
 
 type FormState = typeof emptyForm;
@@ -26,7 +26,7 @@ export function JobFormPage() {
     if (!id) return;
     const controller = new AbortController();
     api.getJob(id, controller.signal).then((job) => setForm({
-      title: job.title, company: job.company, jobUrl: job.jobUrl || "", location: job.location || "", workMode: job.workMode || "", salaryRange: job.salaryRange || "", appliedAt: job.appliedAt?.slice(0, 10) || "", description: job.description || "", mainRequirements: job.mainRequirements || "", desiredRequirements: job.desiredRequirements || "", processDetails: job.processDetails || "", notes: job.notes || "",
+      title: job.title, company: job.company, status: job.status, jobUrl: job.jobUrl || "", location: job.location || "", workMode: job.workMode || "", salaryRange: job.salaryRange || "", appliedAt: job.appliedAt?.slice(0, 10) || "", description: job.description || "", mainRequirements: job.mainRequirements || "", desiredRequirements: job.desiredRequirements || "", processDetails: job.processDetails || "", notes: job.notes || "",
     })).catch((requestError: Error) => {
       if (requestError.name !== "AbortError") setError(requestError.message);
     }).finally(() => setLoading(false));
@@ -40,7 +40,7 @@ export function JobFormPage() {
     setError("");
     if (!form.title.trim() || !form.company.trim()) return setError("Preencha o título da vaga e a empresa.");
     const payload: JobPayload = {
-      title: form.title.trim(), company: form.company.trim(), jobUrl: optional(form.jobUrl), location: optional(form.location), workMode: (form.workMode || null) as WorkMode | null, salaryRange: optional(form.salaryRange), appliedAt: form.appliedAt ? `${form.appliedAt}T00:00:00` : null, description: optional(form.description), mainRequirements: optional(form.mainRequirements), desiredRequirements: optional(form.desiredRequirements), processDetails: optional(form.processDetails), notes: optional(form.notes),
+      title: form.title.trim(), company: form.company.trim(), status: form.status as ApplicationStatus, jobUrl: optional(form.jobUrl), location: optional(form.location), workMode: (form.workMode || null) as WorkMode | null, salaryRange: optional(form.salaryRange), appliedAt: form.appliedAt ? `${form.appliedAt}T00:00:00` : null, description: optional(form.description), mainRequirements: optional(form.mainRequirements), desiredRequirements: optional(form.desiredRequirements), processDetails: optional(form.processDetails), notes: optional(form.notes),
     };
     setBusy(true);
     try {
@@ -65,7 +65,8 @@ export function JobFormPage() {
           <FormSection title="Informações básicas" description="Identificação, origem e formato da oportunidade.">
             <div className="form-grid two"><Field label="Título da vaga" required><input required value={form.title} onChange={(event) => update("title", event.target.value)} placeholder="Ex.: Desenvolvedor Java Júnior" /></Field><Field label="Empresa" required><input required value={form.company} onChange={(event) => update("company", event.target.value)} placeholder="Ex.: Empresa Exemplo" /></Field></div>
             <div className="form-grid two"><Field label="Link da vaga"><input type="url" value={form.jobUrl} onChange={(event) => update("jobUrl", event.target.value)} placeholder="Ex.: https://..." /></Field><Field label="Localização"><input value={form.location} onChange={(event) => update("location", event.target.value)} placeholder="Ex.: São Paulo, SP" /></Field></div>
-            <div className="form-grid three"><Field label="Modalidade"><select value={form.workMode} onChange={(event) => update("workMode", event.target.value)}><option value="">Selecione uma opção</option><option value="REMOTE">Remoto</option><option value="HYBRID">Híbrido</option><option value="ONSITE">Presencial</option></select></Field><Field label="Faixa salarial"><input value={form.salaryRange} onChange={(event) => update("salaryRange", event.target.value)} placeholder="Ex.: R$ 3.000 – R$ 4.000" /></Field><Field label="Data da candidatura"><input type="date" value={form.appliedAt} onChange={(event) => update("appliedAt", event.target.value)} /></Field></div>
+            <div className="form-grid two"><Field label="Status da vaga"><select value={form.status} onChange={(event) => update("status", event.target.value)}><option value="SAVED">Salva</option><option value="APPLIED">Aplicada</option><option value="IN_PROGRESS">Em andamento</option><option value="FINISHED">Finalizada</option></select></Field><Field label="Modalidade"><select value={form.workMode} onChange={(event) => update("workMode", event.target.value)}><option value="">Selecione uma opção</option><option value="REMOTE">Remoto</option><option value="HYBRID">Híbrido</option><option value="ONSITE">Presencial</option></select></Field></div>
+            <div className="form-grid two"><Field label="Faixa salarial"><input value={form.salaryRange} onChange={(event) => update("salaryRange", event.target.value)} placeholder="Ex.: R$ 3.000 – R$ 4.000" /></Field><Field label="Data da candidatura"><input type="date" value={form.appliedAt} onChange={(event) => update("appliedAt", event.target.value)} /></Field></div>
             <Field label="Descrição"><textarea rows={4} value={form.description} onChange={(event) => update("description", event.target.value)} placeholder="Descreva responsabilidades e contexto da vaga..." /></Field>
           </FormSection>
           <FormSection title="Requisitos" description="Separe os itens essenciais das qualificações desejadas.">

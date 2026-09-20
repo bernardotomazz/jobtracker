@@ -2,6 +2,7 @@ import { LogOut } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Brand } from "@/components/Brand";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 function initials(name: string) {
   return name
@@ -58,22 +59,25 @@ export function AppHeader() {
   return (
     <header className="app-header">
       <Brand />
-      <div ref={menuRef} className="user-menu-wrap">
-        <button ref={triggerRef} type="button" className="user-trigger" onClick={() => setOpen((value) => !value)} aria-expanded={open} aria-haspopup="menu" aria-controls="user-menu">
-          <span className="user-name">{shortName}</span>
-          <span className="avatar">{initials(user?.name || "Usuário")}</span>
-        </button>
-        {open && (
-          <div id="user-menu" className="user-menu" role="menu">
-            <div>
-              <strong>{user?.name}</strong>
-              <small>{user?.email}</small>
+      <div className="app-header-actions">
+        <ThemeToggle />
+        <div ref={menuRef} className="user-menu-wrap">
+          <button ref={triggerRef} type="button" className="user-trigger" onClick={() => setOpen((value) => !value)} aria-expanded={open} aria-haspopup="menu" aria-controls="user-menu">
+            <span className="user-name">{shortName}</span>
+            <span className="avatar">{initials(user?.name || "Usuário")}</span>
+          </button>
+          {open && (
+            <div id="user-menu" className="user-menu" role="menu">
+              <div>
+                <strong>{user?.name}</strong>
+                <small>{user?.email}</small>
+              </div>
+              <button ref={menuItemRef} type="button" role="menuitem" onClick={logout}>
+                <LogOut size={16} /> Sair
+              </button>
             </div>
-            <button ref={menuItemRef} type="button" role="menuitem" onClick={logout}>
-              <LogOut size={16} /> Sair
-            </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </header>
   );

@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
     }
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidationException(MethodArgumentNotValidException ex) {
-        String message = "Invalid request data";
+        String message = "Verifique os dados informados";
         if (ex.getBindingResult().getFieldError() != null) {
             message = ex.getBindingResult().getFieldError().getDefaultMessage();
         }
@@ -42,17 +42,17 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiError> handleUnreadableMessage(HttpMessageNotReadableException ex) {
-        return createError(HttpStatus.BAD_REQUEST, "Invalid request body");
+        return createError(HttpStatus.BAD_REQUEST, "O corpo da requisição está inválido.");
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ApiError> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
-        return createError(HttpStatus.BAD_REQUEST, "Invalid parameter value");
+        return createError(HttpStatus.BAD_REQUEST, "O parâmetro informado é inválido.");
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiError> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
-        return createError(HttpStatus.CONFLICT, "Could not save the data");
+        return createError(HttpStatus.CONFLICT, "Não foi possível salvar os dados.");
     }
 
     private ResponseEntity<ApiError> createError(HttpStatus status, String message) {

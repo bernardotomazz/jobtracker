@@ -1,5 +1,6 @@
 package io.github.bernardotomazz.jobtracker.job.dto;
 
+import io.github.bernardotomazz.jobtracker.job.enums.ApplicationStatus;
 import io.github.bernardotomazz.jobtracker.job.enums.WorkMode;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -21,6 +22,7 @@ public class CreateJobRequest {
     @NotBlank
     @Size(max = 100)
     private String company;
+    private ApplicationStatus status;
     @Size(max = 500)
     private String jobUrl;
     @Size(max = 100)

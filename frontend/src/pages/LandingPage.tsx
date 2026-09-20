@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Brand } from "@/components/Brand";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const previewJobs = [
   {
@@ -106,6 +107,7 @@ export function LandingPage() {
       <header className="landing-header">
         <Brand />
         <nav>
+          <ThemeToggle />
           <Link className="button secondary" to="/login">
             Entrar
           </Link>

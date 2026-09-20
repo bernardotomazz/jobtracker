@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Organize suas vagas e acompanhe seus processos seletivos." />
     <title>Waldo</title>
+    <script>
+      (() => {
+        const savedTheme = localStorage.getItem("waldo-theme");
+    const theme = savedTheme === "light" || savedTheme === "dark" ? savedTheme : "light";
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
