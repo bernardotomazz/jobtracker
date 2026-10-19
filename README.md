@@ -44,6 +44,8 @@ O Waldo transforma uma lista dispersa de vagas em um fluxo visual de acompanhame
 - Cadastro de vaga com status inicial personalizado.
 - Busca, filtros por status e modalidade e ordenação.
 - Edição, exclusão e atualização de status.
+- Recuperação de senha por e-mail com tokens de uso único e expiração.
+- Proteção contra força bruta e rate limiting em memória (Bucket4j + Caffeine).
 - Drawer com informações completas da vaga.
 - Dados isolados por usuário autenticado.
 - Tema claro e escuro.
@@ -57,11 +59,11 @@ React, TypeScript, Vite, React Router, Motion, Lucide React e CSS com tokens de 
 
 ### Backend
 
-Java 21, Spring Boot, Spring Security, Spring Data JPA, Bean Validation, JWT, Flyway e Maven.
+Java 21, Spring Boot, Spring Security, Spring Data JPA, Bean Validation, JWT, Flyway, Bucket4j, Caffeine e Maven.
 
 ### Infraestrutura
 
-PostgreSQL, Docker, Render e Cloudflare Pages.
+PostgreSQL, Docker, Render, Cloudflare Pages e Resend.
 
 ## Arquitetura
 
@@ -71,9 +73,9 @@ Cloudflare Pages (React/Vite)
             | HTTPS / REST API
             v
 Render (Spring Boot + Docker)
-            |
-            v
-Render PostgreSQL
+      |              \
+      v               v
+Render PostgreSQL    Resend API (E-mails)
 ```
 
 ## Executar localmente
@@ -111,6 +113,7 @@ DB_USERNAME=job_tracker_user
 DB_PASSWORD=mesma-senha-do-postgres
 JWT_SECRET=secreto_longo_e_aleatorio
 JWT_EXPIRATION=28800000
+RESEND_API_KEY=re_sua_chave_resend
 ```
 
 Execute:
@@ -147,7 +150,7 @@ npm run build
 
 ## Deploy
 
-O backend e executado no Render a partir do `backend/Dockerfile`. O frontend e publicado no Cloudflare Pages com:
+O backend é executado no Render a partir do `backend/Dockerfile`. O frontend é publicado no Cloudflare Pages com:
 
 ```text
 Root directory: frontend
@@ -165,9 +168,7 @@ As credenciais do banco e o segredo JWT devem ser configurados diretamente no pr
 
 ## Possíveis próximos passos
 
-- Recuperação de senha por e-mail.
 - Login com Google.
-- Histórico de alterações.
-- Rate limiting.
+- Histórico de alterações de status.
 - Limite de vagas por usuário.
 - Recursos de IA para análise de compatibilidade e documentos personalizados.
