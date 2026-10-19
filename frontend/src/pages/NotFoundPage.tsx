@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 import { AuthHeader } from "@/components/AuthHeader";
 import { useAuth } from "@/context/AuthContext";
+import { usePageTitle } from "@/lib/usePageTitle";
 
 export function NotFoundPage() {
+  usePageTitle("Página Não Encontrada");
   const { token } = useAuth();
   return (
     <div className="auth-page">

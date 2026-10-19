@@ -15,6 +15,7 @@ import { useRef } from "react";
 import { Link } from "react-router-dom";
 import { Brand } from "@/components/Brand";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { usePageTitle } from "@/lib/usePageTitle";
 import "@/pages/landing-v2.css";
 
 type Tone = "saved" | "applied" | "progress" | "finished";
@@ -146,6 +147,7 @@ function JourneySection() {
 }
 
 export function LandingV2Page() {
+  usePageTitle();
   const { scrollYProgress } = useScroll();
   const smoothProgress = useSpring(scrollYProgress, { stiffness: 120, damping: 28, restDelta: 0.001 });
   const pageProgress = smoothProgress;

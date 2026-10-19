@@ -4,8 +4,10 @@ import { AuthHeader } from "@/components/AuthHeader";
 import { PasswordField } from "@/components/PasswordField";
 import { useAuth } from "@/context/AuthContext";
 import { ApiError } from "@/lib/api";
+import { usePageTitle } from "@/lib/usePageTitle";
 
 export function LoginPage() {
+  usePageTitle("Entrar");
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -43,10 +45,12 @@ export function LoginPage() {
           <p>Acesse suas vagas e continue acompanhando seus processos.</p>
           {params.get("expired") && <div className="alert warning" role="alert">Sua sessão expirou. Entre novamente para continuar.</div>}
           {params.get("registered") && <div className="alert success" role="status">Conta criada com sucesso. Agora, entre para acessar suas vagas.</div>}
+          {params.get("reset") && <div className="alert success" role="status">Senha redefinida com sucesso! Entre com sua nova senha.</div>}
           {error && <div className="alert error" role="alert">{error}</div>}
           <div className="auth-fields">
             <label className="field"><span>E-mail</span><input type="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="seu@email.com" autoComplete="email" /></label>
             <PasswordField label="Senha" required value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Digite sua senha" autoComplete="current-password" />
+            <Link to="/forgot-password" className="auth-forgot">Esqueceu sua senha?</Link>
           </div>
           <button className="button primary full" disabled={busy}>{busy ? "Entrando..." : "Entrar"}</button>
           <p className="auth-footer">Ainda não tem uma conta? <Link to="/register">Criar conta</Link></p>

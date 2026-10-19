@@ -12,6 +12,15 @@ export interface AuthResponse {
   user: User;
 }
 
+export interface ForgotPasswordPayload {
+  email: string;
+}
+
+export interface ResetPasswordPayload {
+  token: string;
+  password: string;
+}
+
 export interface ApiErrorBody {
   status?: number;
   message?: string;

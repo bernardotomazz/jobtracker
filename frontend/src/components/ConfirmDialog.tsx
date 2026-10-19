@@ -1,5 +1,6 @@
 import { AlertTriangle, X } from "lucide-react";
 import { useEffect, useId, useRef } from "react";
+import { useLockBodyScroll } from "@/lib/useLockBodyScroll";
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -11,6 +12,7 @@ interface ConfirmDialogProps {
 }
 
 export function ConfirmDialog({ open, title, description, busy, onCancel, onConfirm }: ConfirmDialogProps) {
+  useLockBodyScroll(open);
   const dialogRef = useRef<HTMLDivElement>(null);
   const cancelRef = useRef<HTMLButtonElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);

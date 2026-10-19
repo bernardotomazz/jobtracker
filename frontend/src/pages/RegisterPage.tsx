@@ -4,8 +4,10 @@ import { AuthHeader } from "@/components/AuthHeader";
 import { PasswordField } from "@/components/PasswordField";
 import { useAuth } from "@/context/AuthContext";
 import { ApiError } from "@/lib/api";
+import { usePageTitle } from "@/lib/usePageTitle";
 
 export function RegisterPage() {
+  usePageTitle("Criar Conta");
   const { register } = useAuth();
   const navigate = useNavigate();
   const [name, setName] = useState("");

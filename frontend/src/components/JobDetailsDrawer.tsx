@@ -2,6 +2,7 @@ import { ExternalLink, LoaderCircle, X } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { StatusBadge, statusLabels } from "@/components/StatusBadge";
 import { api } from "@/lib/api";
+import { useLockBodyScroll } from "@/lib/useLockBodyScroll";
 import type { ApplicationStatus, JobApplication } from "@/types";
 
 const workModeLabels = { REMOTE: "Remoto", HYBRID: "Híbrido", ONSITE: "Presencial" } as const;
@@ -26,6 +27,7 @@ interface JobDetailsDrawerProps {
 }
 
 export function JobDetailsDrawer({ jobId, onClose, onEdit, onDelete, onUpdated }: JobDetailsDrawerProps) {
+  useLockBodyScroll(Boolean(jobId));
   const drawerRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
@@ -95,7 +97,16 @@ export function JobDetailsDrawer({ jobId, onClose, onEdit, onDelete, onUpdated }
 
   if (!jobId) return null;
   return (
-    <div className="drawer-layer" role="presentation" onMouseDown={onClose}>
+    <div
+      className="drawer-layer"
+      role="presentation"
+      onMouseDown={onClose}
+      onWheel={(event) => {
+        if (event.target === event.currentTarget) {
+          drawerRef.current?.scrollBy({ top: event.deltaY });
+        }
+      }}
+    >
     <aside ref={drawerRef} className="job-drawer" role="dialog" aria-modal="true" aria-labelledby={titleId} onMouseDown={(event) => event.stopPropagation()}>
         <button ref={closeRef} type="button" className="icon-button drawer-close" onClick={onClose} aria-label="Fechar detalhes"><X size={20} /></button>
         {loading && <div className="drawer-state" role="status"><LoaderCircle className="spin" /> Carregando vaga...</div>}

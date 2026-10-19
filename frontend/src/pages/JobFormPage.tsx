@@ -3,6 +3,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AppHeader } from "@/components/AppHeader";
 import { api } from "@/lib/api";
+import { usePageTitle } from "@/lib/usePageTitle";
 import type { ApplicationStatus, JobPayload, WorkMode } from "@/types";
 
 const emptyForm = {
@@ -16,6 +17,7 @@ function optional(value: string) { return value.trim() || null; }
 export function JobFormPage() {
   const { id } = useParams();
   const editing = Boolean(id);
+  usePageTitle(editing ? "Editar Vaga" : "Nova Vaga");
   const navigate = useNavigate();
   const [form, setForm] = useState<FormState>(emptyForm);
   const [loading, setLoading] = useState(editing);

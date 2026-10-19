@@ -1,0 +1,17 @@
+{
+  "name": "Waldo — Gestão de Vagas",
+  "short_name": "Waldo",
+  "description": "Organize suas vagas e acompanhe seus processos seletivos.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0D0C",
+  "theme_color": "#0F6B61",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -2,9 +2,11 @@ import type {
   ApiErrorBody,
   ApplicationStatus,
   AuthResponse,
+  ForgotPasswordPayload,
   JobApplication,
   JobFilters,
   JobPayload,
+  ResetPasswordPayload,
 } from "@/types";
 
 const API_URL = import.meta.env.VITE_API_URL || "/api";
@@ -18,7 +20,7 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string, options: RequestInit = {}, authenticated = false): Promise<T> {
+export async function request<T>(path: string, options: RequestInit = {}, authenticated = false): Promise<T> {
   const headers = new Headers(options.headers);
   headers.set("Content-Type", "application/json");
 
@@ -49,16 +51,19 @@ async function request<T>(path: string, options: RequestInit = {}, authenticated
 
     const fallbackMessage = response.status >= 500
       ? "Não foi possível concluir a solicitação agora. Tente novamente em instantes."
-      : response.status === 403
-        ? "Você não tem permissão para realizar esta ação."
-        : response.status === 404
-          ? "Não encontramos o recurso solicitado."
-          : "Não foi possível concluir a solicitação.";
+      : response.status === 429
+        ? "Muitas tentativas em pouco tempo. Aguarde um minuto e tente novamente."
+        : response.status === 403
+          ? "Você não tem permissão para realizar esta ação."
+          : response.status === 404
+            ? "Não encontramos o recurso solicitado."
+            : "Não foi possível concluir a solicitação.";
     throw new ApiError(body.message || fallbackMessage, response.status);
   }
 
   if (response.status === 204) return undefined as T;
-  return response.json() as Promise<T>;
+  const text = await response.text();
+  return (text ? (JSON.parse(text) as T) : (undefined as T));
 }
 
 function queryString(filters: JobFilters) {
@@ -82,6 +87,18 @@ export const api = {
     request<AuthResponse>("/auth/register", {
       method: "POST",
       body: JSON.stringify({ name, email, password }),
+    }),
+
+  forgotPassword: (payload: ForgotPasswordPayload) =>
+    request<void>("/auth/forgot-password", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
+  resetPassword: (payload: ResetPasswordPayload) =>
+    request<void>("/auth/reset-password", {
+      method: "POST",
+      body: JSON.stringify(payload),
     }),
 
   listJobs: (filters: JobFilters = {}) => request<JobApplication[]>(`/jobs${queryString(filters)}`, {}, true),
