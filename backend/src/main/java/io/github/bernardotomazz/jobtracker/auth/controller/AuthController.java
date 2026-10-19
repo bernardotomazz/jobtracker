@@ -4,7 +4,10 @@ import io.github.bernardotomazz.jobtracker.auth.dto.AuthResponse;
 import io.github.bernardotomazz.jobtracker.auth.dto.LoginRequest;
 import io.github.bernardotomazz.jobtracker.auth.dto.RegisterRequest;
 import io.github.bernardotomazz.jobtracker.auth.service.AuthService;
+import io.github.bernardotomazz.jobtracker.email.dto.ForgotPasswordRequest;
+import io.github.bernardotomazz.jobtracker.email.dto.ResetPasswordRequest;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,4 +32,17 @@ public class AuthController {
     public AuthResponse login(@Valid @RequestBody LoginRequest loginRequest){
         return authService.login(loginRequest);
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity forgotPassword (@Valid @RequestBody ForgotPasswordRequest forgotPasswordRequest) {
+        authService.forgotPassword(forgotPasswordRequest);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity resetPassword (@Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
+        authService.resetPassword(resetPasswordRequest);
+        return ResponseEntity.ok().build();
+    }
+
 }

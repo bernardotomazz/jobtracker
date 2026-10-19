@@ -173,6 +173,39 @@ class JobApplicationServiceTest {
     }
 
     @Test
+    void shouldUpdateExistingJobWithNewStatusWhenProvided() {
+        User user = createUser();
+        UUID jobId = UUID.randomUUID();
+
+        JobApplication existingJob =
+                createJob(user, "Título antigo", ApplicationStatus.SAVED);
+        existingJob.setId(jobId);
+
+        CreateJobRequest request = createRequest();
+        request.setTitle("Título atualizado");
+        request.setStatus(ApplicationStatus.IN_PROGRESS);
+
+        when(jobApplicationRepository.findByIdAndUserId(jobId, user.getId()))
+                .thenReturn(Optional.of(existingJob));
+
+        when(jobApplicationRepository.save(existingJob))
+                .thenReturn(existingJob);
+
+        JobResponse response =
+                jobApplicationService.updateJobApplication(
+                        jobId,
+                        request,
+                        user
+                );
+
+        assertEquals(jobId, response.getId());
+        assertEquals("Título atualizado", existingJob.getTitle());
+        assertEquals(ApplicationStatus.IN_PROGRESS, existingJob.getStatus());
+        assertEquals(ApplicationStatus.IN_PROGRESS, response.getStatus());
+        verify(jobApplicationRepository).save(existingJob);
+    }
+
+    @Test
     void shouldDeleteJobOwnedByAuthenticatedUser() {
         User user = createUser();
         UUID jobId = UUID.randomUUID();

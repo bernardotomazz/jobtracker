@@ -67,5 +67,8 @@ public final class JobApplicationMapper {
         jobApplication.setProcessDetails(request.getProcessDetails());
         jobApplication.setNotes(request.getNotes());
         jobApplication.setAppliedAt(request.getAppliedAt());
+        if (request.getStatus() != null) {
+            jobApplication.setStatus(request.getStatus());
+        }
     }
 }
